@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient; //namespace
+using System.Data;
+using System.Drawing;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace ConnectToDB.SQLServerDb
 {
@@ -26,37 +29,27 @@ namespace ConnectToDB.SQLServerDb
             //InsertData();
             //Console.WriteLine("Data added...");
 
-            GetAllStudents();
-            foreach(Student st in studentList)
+            //GetAllStudents();
+
+            // GetStudents(); //using a datatable
+
+            foreach(Student st in Student.GetStudents())
             {
                 Console.WriteLine(st);
             }
             Console.WriteLine("---------------------------------------------------------------");
-            GetStudent("ST81142");
+            // GetStudent("ST81142");
+            Console.WriteLine(Student.GetData("ST81142"));
+            Console.WriteLine("---------------------------------------------------------------");
+            Student.DeleteStudent("ST81142");
+            foreach (Student st in Student.GetStudents())
+            {
+                Console.WriteLine(st);
+            }
+            Console.WriteLine("---------------------------------------------------------------");
             Console.Read();
         }
 
-        static void AddStudent(Student st)
-        {
-            // 1. Create connection object: 
-            using (SqlConnection conn = new SqlConnection(strCon))
-            {
-                conn.Open();
-                string strInsert = $"INSERT INTO tblStudent(StudentNo,FirstName, LastName, Age)" +
-                                    $"VALUES('{st.StudentId}', '{st.FirstName}', '{st.LastName}', {st.Age})";
-
-                //string strInsert = "INSERT INTO tblStudent" +
-                //    "VALUES('ST1000', 'David', 'Smith', 20)";
-                //if you insert into all columns, then you dont need the column details. 
-                // 2. Select a command from the SqlCommand Class. 
-
-                SqlCommand insertCmd = new SqlCommand(strInsert, conn);
-
-                    // 3. Execute command insert, update and delete is non-query. Only select is query
-
-                insertCmd.ExecuteNonQuery();
-            }
-        }
 
         static void InsertData()
         {
@@ -69,63 +62,8 @@ namespace ConnectToDB.SQLServerDb
                 int age = rnd.Next(18, 25);
 
                 Student st=new Student(stNo, name,surname, age);
-                AddStudent(st);
+                //AddStudent(st);
              }
-        }
-
-        static void GetAllStudents()
-        {
-            // 1. Create connection object: 
-            using (SqlConnection con = new SqlConnection(strCon))
-            {
-                con.Open();
-
-                // 2. Select a command from the SqlCommand Class. 
-                string strSelect = "Select * from tblStudent";
-
-                // 3. Execute command insert, update and delete is non-query. Only select is query
-                SqlCommand cmdSelect= new SqlCommand(strSelect, con);
-
-                using(SqlDataReader reader = cmdSelect.ExecuteReader())
-                {
-                    while(reader.Read())
-                    {
-                        string stId = reader[0].ToString();
-                        string name = reader[1].ToString();
-                        string surname = reader[2].ToString();
-                        int age =Convert.ToInt32(reader["Age"]); // two ways of reading data:
-                                                                 // 1: using index 
-                                                                 // 2: using the name of column. 
-                        Student st=new Student(stId, name, surname, age);
-                        studentList.Add(st);
-                        //Console.WriteLine($"{stId}\t\t{name}\t\t{surname}\t\t{age}");
-                    }
-                }
-            }
-        }
-
-        static void GetStudent(string stNo)
-        {
-            // 1. Create connection object: 
-            using (SqlConnection con = new SqlConnection(strCon))
-            {
-                con.Open();
-
-                // 2. Select a command from the SqlCommand Class. 
-                string strSelect = $"Select * from tblStudent where StudentNo='{stNo}'";
-
-                // 3. Execute command insert, update and delete is non-query. Only select is query
-                SqlCommand cmdSelect = new SqlCommand(strSelect, con);
-
-                using (SqlDataReader reader = cmdSelect.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        Console.WriteLine($"{reader.GetString(0)}\t\t{reader.GetString(1)}" +
-                            $"\t\t{reader[2]}\t\t{reader.GetInt32(3)}");
-                    }
-                }
-            }
         }
     }
 }
