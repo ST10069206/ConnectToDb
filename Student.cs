@@ -145,6 +145,7 @@ namespace ConnectToDB
             using(SqlConnection con = new SqlConnection(strCon))
             {
                 con.Open();
+                
                 string strDelete = $"Delete from tblStudent where StudentNo='{id}'";
                 SqlCommand cmdDelete = new SqlCommand(strDelete, con);
                 cmdDelete.ExecuteNonQuery();
